@@ -1,0 +1,76 @@
+--- src/Makefile	2010-09-26 11:25:49.000000000 +0200
++++ src/Makefile.oden	2010-09-26 12:02:39.774336240 +0200
+@@ -1,28 +1,56 @@
++CFLAGS=-g -Wall -O2
++CFLAGS+=-I. -DFLOATING_POINT -DVAR_ARRAYS
+ CC=gcc
+-CFLAGS=-g -Wall -I. -I../src -Wall -g -DFLOATING_POINT -DVAR_ARRAYS -O2
++bindir = /usr/bin
++libdir = /usr/lib
++includedir = /usr/include
++DESTDIR = 
+ 
+-C2SIM_OBJ = sine.o nlp.o four1.o dump.o quantise.o lpc.o lsp.o phase.o \
+-            pack.o postfilter.o interp.o codec2.o c2sim.o 
++AR = ar
++RANLIB = ranlib
++LIBTOOL = libtool
++INSTALL = install -c
++LDFLAGS = 
+ 
+-C2ENC_OBJ = sine.o nlp.o four1.o dump.o quantise.o lpc.o lsp.o phase.o \
+-            pack.o postfilter.o interp.o codec2.o c2enc.o 
++LT_CURRENT=0
++LT_REVISION=0
++LT_AGE=0
+ 
+-C2DEC_OBJ = sine.o nlp.o four1.o dump.o quantise.o lpc.o lsp.o phase.o \
+-            pack.o postfilter.o interp.o codec2.o c2dec.o 
++OBJS=sine.o nlp.o four1.o dump.o quantise.o lpc.o lsp.o phase.o pack.o postfilter.o interp.o codec2.o
++LTOBJS:= $(OBJS:.o=.lo)
+ 
+-all: c2sim c2enc c2dec
++all: libcodec2.la c2sim c2enc c2dec
+ 
+-c2sim: $(C2SIM_OBJ)
+-	$(CC) $(CFLAGS) $(C2SIM_OBJ) -o c2sim -lm
++libcodec2.la: $(LTOBJS)
++	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -rpath $(libdir) \
++	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -o \
++	libcodec2.la $(LTOBJS) -lm
+ 
+-c2enc: $(C2ENC_OBJ)
+-	$(CC) $(CFLAGS) $(C2ENC_OBJ) -o c2enc -lm
++c2sim: c2sim.o libcodec2.la
++	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
+ 
+-c2dec: $(C2DEC_OBJ)
+-	$(CC) $(CFLAGS) $(C2DEC_OBJ) -o c2dec -lm
++c2enc: c2enc.o libcodec2.la
++	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
+ 
+-%.o : %.c
++c2dec: c2dec.o libcodec2.la
++	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
++
++%.o: %.c
+ 	$(CC) -c $(CFLAGS) $< -o $@
+ 
+-clean :
+-	rm -f *.o *~ src/*~ c2enc c2dec c2sim
++%.lo: %.c
++	$(LIBTOOL) --mode=compile $(CC) -c $(CFLAGS) $< -o $@
++
++install:
++	$(INSTALL) -d $(DESTDIR)$(bindir)
++	$(INSTALL) -d $(DESTDIR)$(libdir)
++	$(INSTALL) -d $(DESTDIR)$(includedir)/codec2
++	$(LIBTOOL) --mode=install $(INSTALL) libcodec2.la $(DESTDIR)$(libdir)
++	$(LIBTOOL) --mode=install $(INSTALL) -m 755 c2sim $(DESTDIR)$(bindir)
++	$(LIBTOOL) --mode=install $(INSTALL) -m 755 c2enc $(DESTDIR)$(bindir)
++	$(LIBTOOL) --mode=install $(INSTALL) -m 755 c2dec $(DESTDIR)$(bindir)
++	$(INSTALL) -m 644 *.h $(DESTDIR)$(includedir)/codec2
++
++clean:
++	rm -f *.o *.lo *.a *.la c2sim c2enc c2dec
++	rm -rf .libs
