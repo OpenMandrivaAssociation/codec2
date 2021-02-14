@@ -1,73 +1,89 @@
-%define	snap r195
+%define major	0.9
+%define libname %mklibname %{name} %{major}
+%define devname %mklibname %{name} -d
 
-%define	major 0
-%define libname %mklibname codec2 _%{major}
-%define develname %mklibname codec2 -d
-
-Summary:	Low bit rate speech codec
 Name:		codec2
-Version:	0.1
-Release:	0.0.%{snap}.2
-License:	LGPL
-Group:		Sound
-URL:		http://rowetel.com/codec2.html
-Source0:	%{name}-%{snap}.tar.gz
-Patch0:		codec2-shared.diff
-BuildRequires:	libtool
+Version:	0.9.2
+Release:	1
+Summary:	An open source speech codec for 2400 bit/s and below
+Group:		Communications/Radio
+License:	LGPLv2
+Url:		https://github.com/drowe67/codec2
+Source0:	https://github.com/drowe67/codec2/archive/v0.9.2/%{name}-%{version}.tar.gz
+
+BuildRequires:	cmake
+BuildRequires:	pkgconfig(samplerate)
+BuildRequires:	pkgconfig(speex)
+BuildRequires:	pkgconfig(speexdsp)
 
 %description
 Codec2 is an open source low bit rate speech codec designed for communications
-quality speech at around 2400 bit/s. Applications include low bandwidth HF/VHF
-digital radio. It fills a gap in open source, free-as-in-speech voice codecs
+quality speech between 1200 and 3200 bit/s. Applications include low bandwidth
+HF/VHF digital radio and VOIP trunking. Codec 2 operating at 2400 bit/s can
+send 26 phone calls using the bandwidth required for one 64 kbit/s uncompressed
+phone call. It fills a gap in open source, free-as-in-speech voice codecs
 beneath 5000 bit/s.
 
-%package -n	%{libname}
-Summary:	Shared %{name} library
-Group:		System/Libraries
+#----------------------------
+%package -n %{libname}
+Summary:	Dynamic library files for linking with %{name}
 
-%description -n	%{libname}
-Codec2 is an open source low bit rate speech codec designed for communications
-quality speech at around 2400 bit/s. Applications include low bandwidth HF/VHF
-digital radio. It fills a gap in open source, free-as-in-speech voice codecs
-beneath 5000 bit/s.
+%description -n %{libname}
+Dynamic library files for linking with %{name}
 
-%package -n	%{develname}
-Summary:	Development files for the %{name} library
-Group:		Development/C
-Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
+#----------------------------
+%package -n %{devname}
+Summary:	Development files for building packages using %{name}
 Requires:	%{libname} = %{version}-%{release}
+Requires:	%{name} = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
 
-%description -n	%{develname}
-Codec2 is an open source low bit rate speech codec designed for communications
-quality speech at around 2400 bit/s. Applications include low bandwidth HF/VHF
-digital radio. It fills a gap in open source, free-as-in-speech voice codecs
-beneath 5000 bit/s.
-
-This package contains the development files for codec2.
+%description -n %{devname}
+Development files for building packages using %{name}
 
 %prep
-
-%setup -q -n %{name}
-%patch0 -p0
+%autosetup -p1
 
 %build
-%make -C src CFLAGS="%{optflags} -I. -DFLOATING_POINT -DVAR_ARRAYS" LDFLAGS="%{ldflags}" libdir=%{_libdir}
+%cmake
+
+%make_build
 
 %install
-%makeinstall_std -C src \
-    bindir=%{_bindir} \
-    libdir=%{_libdir} \
-    includedir=%{_includedir}
+%make_install -C build
 
-%files
-%{_bindir}/*
+# pkgconfig file
+mkdir -p %{buildroot}%{_libdir}/pkgconfig
+cat > %{buildroot}%{_libdir}/pkgconfig/%{name}.pc<<EOF
+prefix=%{_prefix}
+exec_prefix=%{_prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}/%{name}
+
+Name: %{name}
+Description: A codec2 codec library
+Requires:
+Version: %{version}
+Libs: -L\${libdir} -l%{name}
+Libs.private: -lm
+Cflags: -I\${includedir}
+
+EOF
+
+mkdir -p %{buildroot}%{_datadir}/%{name}
+cp -r raw wav script %{buildroot}%{_datadir}/%{name}/
+
 
 %files -n %{libname}
-%{_libdir}/*.so.%{major}*
+%{_libdir}/lib%{name}.so.%{major}
 
-%files -n %{develname}
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/*
-%{_libdir}/*.so
+%files -n %{devname}
+%{_includedir}/%{name}
+%{_libdir}/lib%{name}.so
+%{_libdir}/pkgconfig/%{name}.pc
+%{_libdir}/cmake/codec2/*
 
+%files
+%doc COPYING README_fdmdv.txt
+%{_bindir}/*
+%{_datadir}/%{name}
