@@ -84,6 +84,6 @@ cp -r raw wav script %{buildroot}%{_datadir}/%{name}/
 %{_libdir}/cmake/codec2/*
 
 %files
-%doc COPYING README_fdmdv.txt
-%{_bindir}/*
+%doc COPYING
+#{_bindir}/*
 %{_datadir}/%{name}
