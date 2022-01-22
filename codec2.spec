@@ -1,9 +1,9 @@
-%define major	0.9
+%define major	1.0
 %define libname %mklibname %{name} %{major}
 %define devname %mklibname %{name} -d
 
 Name:		codec2
-Version:	0.9.2
+Version:	1.0.3
 Release:	1
 Summary:	An open source speech codec for 2400 bit/s and below
 Group:		Communications/Radio
