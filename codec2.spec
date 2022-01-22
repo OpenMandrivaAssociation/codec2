@@ -3,13 +3,13 @@
 %define devname %mklibname %{name} -d
 
 Name:		codec2
-Version:	1.0.3
+Version:	1.03
 Release:	1
 Summary:	An open source speech codec for 2400 bit/s and below
 Group:		Communications/Radio
 License:	LGPLv2
 Url:		https://github.com/drowe67/codec2
-Source0:	https://github.com/drowe67/codec2/archive/v0.9.2/%{name}-%{version}.tar.gz
+Source0:	https://github.com/drowe67/codec2/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:	cmake
 BuildRequires:	pkgconfig(samplerate)
