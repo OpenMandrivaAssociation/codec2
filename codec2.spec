@@ -3,7 +3,7 @@
 %define devname %mklibname %{name} -d
 
 Name:		codec2
-Version:	1.0.5
+Version:	1.03
 Release:	1
 Summary:	An open source speech codec for 2400 bit/s and below
 Group:		Communications/Radio
