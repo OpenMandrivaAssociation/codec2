@@ -71,7 +71,7 @@ Cflags: -I\${includedir}
 EOF
 
 mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -r raw wav script %{buildroot}%{_datadir}/%{name}/
+cp -r raw wav %{buildroot}%{_datadir}/%{name}/
 
 
 %files -n %{libname}
