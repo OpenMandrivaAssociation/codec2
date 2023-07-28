@@ -1,9 +1,9 @@
-%define major	1.1
+%define major	1.2
 %define libname %mklibname %{name} %{major}
 %define devname %mklibname %{name} -d
 
 Name:		codec2
-Version:	1.1.1
+Version:	1.2.0
 Release:	1
 Summary:	An open source speech codec for 2400 bit/s and below
 Group:		Communications/Radio
@@ -71,7 +71,7 @@ Cflags: -I\${includedir}
 EOF
 
 mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -r raw wav script %{buildroot}%{_datadir}/%{name}/
+cp -r raw wav %{buildroot}%{_datadir}/%{name}/
 
 
 %files -n %{libname}
