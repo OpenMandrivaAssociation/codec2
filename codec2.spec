@@ -1,5 +1,6 @@
 %define major	1.2
-%define libname %mklibname %{name} %{major}
+%define oldlibname %mklibname %{name} 1.2
+%define libname %mklibname %{name}
 %define devname %mklibname %{name} -d
 
 Name:		codec2
@@ -11,7 +12,7 @@ License:	LGPLv2
 Url:		https://github.com/drowe67/codec2
 Source0:	https://github.com/drowe67/codec2/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRequires:	cmake
+BuildSystem:	cmake
 BuildRequires:	pkgconfig(samplerate)
 BuildRequires:	pkgconfig(speex)
 BuildRequires:	pkgconfig(speexdsp)
@@ -27,6 +28,8 @@ beneath 5000 bit/s.
 #----------------------------
 %package -n %{libname}
 Summary:	Dynamic library files for linking with %{name}
+# Renamed 2025/11/21 after 6.0
+%rename %{oldlibname}
 
 %description -n %{libname}
 Dynamic library files for linking with %{name}
@@ -41,17 +44,7 @@ Provides:	%{name}-devel = %{version}-%{release}
 %description -n %{devname}
 Development files for building packages using %{name}
 
-%prep
-%autosetup -p1
-
-%build
-%cmake
-
-%make_build
-
-%install
-%make_install -C build
-
+%install -a
 # pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
 cat > %{buildroot}%{_libdir}/pkgconfig/%{name}.pc<<EOF
@@ -73,7 +66,6 @@ EOF
 mkdir -p %{buildroot}%{_datadir}/%{name}
 cp -r raw wav %{buildroot}%{_datadir}/%{name}/
 
-
 %files -n %{libname}
 %{_libdir}/lib%{name}.so.%{major}
 
@@ -85,5 +77,4 @@ cp -r raw wav %{buildroot}%{_datadir}/%{name}/
 
 %files
 %doc COPYING
-#{_bindir}/*
 %{_datadir}/%{name}
